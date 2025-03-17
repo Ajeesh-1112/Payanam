@@ -2,7 +2,7 @@
   <v-container :fluid="true" class="px-0 py-0">
     <v-card
       height="100vh"
-      style="background: url('/bus2.jpeg'); background-size: cover"
+      style="background: url('/newbus.jpg'); background-size: cover"
     >
       <v-container
         style="margin-top: 150px"
@@ -14,20 +14,30 @@
         <v-card-title class="text-center font-weight-bold">
           {{ $t("bookSeat") }}
         </v-card-title>
-        <v-row class="my-4 border rounded-xl" dense>
-          <v-col class="rounded-xl">
+        <v-row class="my-4 border rounded-xl" dense no-gutters>
+          <v-col class="rounded-xl pa-2" cols="12" sm="5" md="3">
             <v-autocomplete
               v-model="from"
               :items="filteredDistrictsForFrom"
               clearable
               label="From"
               variant="plain"
-              hide-details
-              style="height: 100%"
               prepend-inner-icon="mdi-location-enter"
             ></v-autocomplete>
           </v-col>
-          <v-col class="border">
+          <v-col class="border text-center py-3" cols="12" sm="2" md="1">
+            <v-btn icon @click="swapValues">
+              <v-icon
+                size="32px"
+                color="orange"
+                :class="{ 'rotate-180': rotated }"
+                class="swap-icon"
+              >
+                mdi-swap-horizontal
+              </v-icon>
+            </v-btn>
+          </v-col>
+          <v-col class="border pa-2" cols="12" sm="5" md="3">
             <v-autocomplete
               v-model="to"
               variant="plain"
@@ -35,11 +45,11 @@
               :items="filteredDistrictsForTo"
               label="To"
               hide-details
-              style="height: 100%"
               prepend-inner-icon="mdi-location-exit"
             ></v-autocomplete>
           </v-col>
-          <v-col class="border">
+
+          <v-col class="border pa-2" cols="12" sm="12" md="2">
             <v-menu
               v-model="isDate"
               :close-on-content-click="false"
@@ -71,12 +81,13 @@
             </v-menu>
           </v-col>
 
-          <v-col class="py-0 px-0">
+          <v-col class="py-0 px-0" cols="12" sm="12" md="3">
             <v-btn
               @click="searchBuses"
               block
-              
-              height="100%"
+              flat
+              width="100%"
+              height="95px"
               class="rounded-te-xl rounded-be-xl buttoncolor text-white"
             >
               Search Busses</v-btn
@@ -86,16 +97,16 @@
       </v-container>
     </v-card>
     <!-- Popular Cities -->
-    <v-card color="#F2F2F2">
+    <v-card >
       <v-container>
-        <v-list style="background-color: #f2f2f2">
+        <v-list >
           <v-list-item class="my-2" v-for="(text, i) in description" :key="i">
             <v-list-item-title
               style="font-size: 14px"
               class="font-weight-bold mb-2"
               >{{ text.title.toUpperCase() }}</v-list-item-title
             >
-            <v-list-item-text  style="font-size: 11px">{{
+            <v-list-item-text style="font-size: 11px">{{
               text.subtitle
             }}</v-list-item-text>
           </v-list-item>
@@ -133,6 +144,7 @@
                         variant="outlined"
                         color="yellow"
                         class="rounded-lg"
+                        @click="selectedPopularCities(place.place)"
                         >Book Now</v-btn
                       >
                     </div>
@@ -145,7 +157,7 @@
       </v-container>
     </v-card>
     <!-- Description -->
-    <v-card  color="#F2F2F2" >
+    <v-card >
       <v-container class="py-0">
         <v-row class="border-b mt-10">
           <v-col
@@ -154,7 +166,7 @@
             cols="12"
             md="6"
           >
-            <v-card-title class="font-weight-bold ">{{
+            <v-card-title class="font-weight-bold">{{
               item.title
             }}</v-card-title>
             <v-card-text class="text-black" style="font-size: 13px">
@@ -179,8 +191,10 @@
         </v-row>
       </v-container>
     </v-card>
+    <!-- Popular Routes -->
+        <Popularroutes  @route-selected="selectedPopularRoutes" />
     <!-- About us -->
-    <v-footer class="py-6 text-center d-flex flex-column" color="#E9E9E9">
+    <v-footer class="py-6 text-center d-flex flex-column" color="#f2f2f2">
       <div>
         <v-btn
           v-for="icon in icons"
@@ -209,20 +223,27 @@
 
       <v-divider></v-divider>
 
-      <div class="text-red mt-4">{{ new Date().getFullYear() }} — <strong class="text-red">Payanam</strong></div>
+      <div class="text-orange mt-4">
+        {{ new Date().getFullYear() }} —
+        <strong class="text-orange">Payanam</strong>
+      </div>
     </v-footer>
   </v-container>
 </template>
 <script>
 import district from "../District/district.json";
+import Popularroutes from "./comp/Popularroutes.vue";
 export default {
   name: "loginPage",
+  components:{
+     Popularroutes
+  },
   data() {
     return {
       isDate: false,
       selectedDate: null,
       districtList: [],
-
+      rotated: false,
       icons: ["mdi-facebook", "mdi-twitter", "mdi-linkedin", "mdi-instagram"],
 
       from: null,
@@ -305,6 +326,26 @@ export default {
     },
   },
   methods: {
+    swapValues() {
+      [this.from, this.to] = [this.to, this.from];
+      this.rotated = !this.rotated;
+    },
+    selectedPopularCities(selectedPlace) {
+      this.to = selectedPlace
+      window.scrollTo({
+      top: 50,
+      behavior: "smooth", 
+    });
+    },
+    selectedPopularRoutes(route) {
+      this.to = route.to
+      this.from = route.from
+      window.scrollTo({
+      top: 50,
+      behavior: "smooth", 
+    });
+    },
+
     searchBuses() {
       if (!this.from || !this.to || !this.date) {
         alert("Please fill in both 'From' and 'To' fields.");
@@ -342,10 +383,15 @@ export default {
 }
 .hover-footer-icon:hover {
   transform: rotate(90deg);
-  color:#D84E55;
+  color: #d84e55;
 }
-.buttoncolor{
-  background-color: #D84E55;
+.buttoncolor {
+  background-color: orange;
 }
-
+.swap-icon {
+  transition: transform 0.5s ease-in-out;
+}
+.rotate-180 {
+  transform: rotate(180deg);
+}
 </style>

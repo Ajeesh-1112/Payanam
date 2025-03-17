@@ -8,21 +8,23 @@
             variant="text"
             @click.stop="drawer = !drawer"
           ></v-app-bar-nav-icon>
-
-          <v-toolbar-title class="font-weight-bold position-fixed ml-16">
-            <v-icon style="font-size: 70px" color="red"
-              >mdi-bus-articulated-front</v-icon
-            >
-            {{ $t("websiteName") }}</v-toolbar-title
+          <v-img
+            src="/logo4.png"
+            width="45px"
+            class="position-fixed ml-10"
+          ></v-img>
+          <v-toolbar-title
+            class="font-weight-bold position-fixed ml-16"
+            style="left: 70px"
           >
+            {{ $t("websiteName") }}
+          </v-toolbar-title>
 
           <v-spacer></v-spacer>
-          <v-list
-            class="navigation-list rounded-pill w-40 d-flex justify-center"
-          >
+          <v-list class="navigation-list w-40 d-flex justify-center">
             <v-list-item
               @click="categories(option.name)"
-              class="ml-2 px-10 text-center rounded-pill"
+              class="ml-2 px-10 text-center rounded-lg"
               :class="{
                 selected_transport: selectedTransport === option.name,
               }"
@@ -78,10 +80,10 @@
           <v-btn
             v-if="!loginStatus"
             @click="isLogin = true"
-            class="rounded-pill navigation-list buttoncolor text-white"
+            class="navigation-list buttoncolor text-white"
             size="large"
           >
-            <v-card-text class="px-0 py-0">Login/signup</v-card-text>
+            <v-card-text class="px-0 py-0">Login / Signup</v-card-text>
           </v-btn>
         </v-app-bar>
 
@@ -113,18 +115,17 @@
               </v-list-item-title>
             </v-list-item>
           </v-list>
-          <v-spacer style="margin-top: 150px"></v-spacer>
+          <v-spacer style="margin-top: 120px"></v-spacer>
           <template v-slot:append>
             <v-btn
-              rounded="0"
               append-icon="mdi-logout"
               block
               v-if="!loginStatus"
               @click="isLogin = true"
-              class="buttoncolor text-white"
+              class="buttoncolor text-white mb-23"
               size="large"
             >
-              <v-card-text class="px-0 py-0">Login/signup</v-card-text>
+              login / Signup
             </v-btn>
           </template>
         </v-navigation-drawer>
@@ -267,11 +268,11 @@ export default {
       this.defaultLanguage = language.toUpperCase();
     },
     selectAccountOption(value) {
-       if(value == "Log out")
-       {
+      if (value == "Log out") {
         Cookies.remove("authToken");
-        this.authToken()
-       }
+
+        location.reload();
+      }
     },
 
     categories(selectedCategories) {
@@ -281,7 +282,7 @@ export default {
     },
     login() {
       this.$axios
-        .post("http://localhost:4000/login", { email: this.email })
+        .post("http://localhost:3000/login", { email: this.email })
         .then((response) => {
           console.log("Login successful:", response.data);
           this.authToken();
@@ -305,9 +306,6 @@ export default {
     this.isLogin = true;
     this.authToken();
     this.$router.push("/bus");
-    const savedTheme = localStorage.getItem("theme");
-    this.isDark = savedTheme === "dark";
-    this.$vuetify.theme.global.name = savedTheme || "light";
   },
 };
 </script>
@@ -321,11 +319,11 @@ export default {
   border: 1px solid rgba(255, 255, 255, 0.3);
 }
 .selected_transport {
-  background-color: #d84e55;
+  background-color: orange;
   color: white;
 }
 .selected_transport_drawer {
-  border-left: 4px solid #d84e55;
+  border-left: 4px solid orange;
 }
 
 .navigation-list {
@@ -335,7 +333,8 @@ export default {
   display: none !important;
 }
 .buttoncolor {
-  background-color: #d84e55;
+  background-color: orange;
+  border-radius: 6px !important;
 }
 @media (max-width: 800px) {
   .navigation-list {
@@ -343,6 +342,23 @@ export default {
   }
   .drawer-icon {
     display: block !important;
+  }
+}
+
+.moving-bus {
+  position: relative;
+  animation: moveBus 5s linear forwards;
+}
+
+@keyframes moveBus {
+  0% {
+    transform: translateX(-5px);
+  }
+  50% {
+    transform: translateX(10px);
+  }
+  100% {
+    transform: translateX(-5px);
   }
 }
 </style>

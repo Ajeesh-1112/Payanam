@@ -1,7 +1,7 @@
 <template>
   <v-card
     flat
-    height="90vh"
+    height="91vh"
     style="background: url('/map.png'); background-size: cover"
   >
     <v-container flat class="d-flex justify-center align-center" height="100%">
@@ -15,7 +15,7 @@
 
         <v-text-field variant="outlined"></v-text-field>
 
-        <v-btn block color="#F44336" @click="isTicket = false">Search</v-btn>
+        <v-btn block color="orange text-white" height="50px" @click="isTicket = false">Search</v-btn>
       </v-card>
       <v-card flat v-else width="50%">
         <v-card-text class="font-weight-bold text-center">

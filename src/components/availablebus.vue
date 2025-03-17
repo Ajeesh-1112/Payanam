@@ -383,7 +383,10 @@
                         </v-col>
                       </v-row>
                     </v-col>
-                    <v-col cols="2" class="d-flex align-end flex-column justify-center">
+                    <v-col
+                      cols="2"
+                      class="d-flex align-end flex-column justify-center"
+                    >
                       <v-card-text
                         >Seat No :{{ selectedSeats.join(", ") }}</v-card-text
                       >
@@ -605,6 +608,26 @@ export default {
         },
       });
     },
+    async getbusData() {
+      try {
+        const response = await this.$axios
+          .get(`https://payanam-backend.onrender.com/
+busServices`);
+        console.log(response);
+
+        if (response.status == "200") {
+          this.availabelBus = response.data.filter((bus) => {
+            return (
+              bus.serviceStartPlace === this.serviceStartPlace &&
+              bus.serviceEndPlace === this.serviceEndPlace
+            );
+          });
+          this.loadingBuses = false;
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    },
   },
   watch: {
     selectedSeats(newValue) {
@@ -636,22 +659,7 @@ export default {
     this.serviceStartPlace = from;
     this.serviceEndPlace = to;
     this.serviceDate = this.selectedDate = date;
-
-    try {
-      const response = await this.$axios.get("http://localhost:4000/");
-      if (response.status == "200") {
-        this.availabelBus = response.data.filter((bus) => {
-          return (
-            bus.serviceStartPlace === this.serviceStartPlace &&
-            bus.serviceEndPlace === this.serviceEndPlace
-          );
-        });
-        this.loadingBuses = false;
-      }
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-
+    this.getbusData();
     const today = new Date();
 
     for (let i = 0; i < 30; i++) {
