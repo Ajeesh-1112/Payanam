@@ -1,6 +1,6 @@
 <template>
   <v-container :fluid="true" class="px-0 py-0">
-    <v-toolbar color="#10223B">
+    <v-toolbar color="orange" class="elevation-2 py-2 text-white">
       <v-container class="d-flex align-center px-0 py-0">
         <v-card-title class="font-weight-bold text-h5"
           >Complete Your Booking</v-card-title
@@ -174,7 +174,7 @@
           >By clicking on proceed, I agree that I have read and <br />
           understood the TnCs and the Privacy Policy</v-card-subtitle
         >
-        <v-btn block color="blue" class="mt-4" @click="paymentPage"
+        <v-btn block color="orange" class="mt-4 text-white" @click="paymentPage"
           >Continue</v-btn
         >
       </v-card>

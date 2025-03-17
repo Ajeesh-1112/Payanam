@@ -1,7 +1,7 @@
 <template>
   <v-container class="px-0 py-0 gradient" :fluid="true">
     <v-container class="py-0 px-0">
-      <v-toolbar color="#003366" density="compact">
+      <v-toolbar color="#FFA500" density="compact">
         <v-card-text class="text-subtitle-1 font-weight-bold">{{
           $t("websiteName")
         }}</v-card-text>
@@ -11,7 +11,7 @@
         >
       </v-toolbar>
 
-      <v-card flat rounded="xl">
+      <v-card  rounded="xl">
         <v-row class="d-flex align-center">
           <v-col class="py-0">
             <v-card-text class="py-0">Get addtional discounts</v-card-text>
@@ -23,7 +23,7 @@
             <v-img src="bus_icon.png" width="75px" />
           </v-col>
           <v-col class="text-end py-0">
-            <v-btn class="rounded-xl" height="100" block color="primary">
+            <v-btn class="rounded-xl text-orange" height="100" block >
               login now
             </v-btn>
           </v-col>
@@ -85,7 +85,7 @@
                   variant="outlined"
                 >
                 </v-text-field>
-                <v-btn block color="blue" @click="payNow">Pay Now</v-btn>
+                <v-btn class="text-white" block color="orange" @click="payNow">Pay Now</v-btn>
                 <v-col>
                   <v-timeline dense>
                     <v-timeline-item
@@ -551,7 +551,7 @@ export default {
 
 <style scoped>
 .gradient {
-  background: linear-gradient(to bottom, #003366 20%, #eae8e8 20%);
+  background: linear-gradient(to bottom,orange 20%, #eae8e8 20%);
   width: 100%;
 }
 .img {
