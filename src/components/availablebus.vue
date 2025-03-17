@@ -610,11 +610,10 @@ export default {
     },
     async getbusData() {
       try {
-        const response = await this.$axios
-          .get(`https://payanam-backend.onrender.com/
-busServices`);
+        const response = await this.$axios.get(
+          "https://payanam-backend.onrender.com/busServices"
+        );
         console.log(response);
-
         if (response.status == "200") {
           this.availabelBus = response.data.filter((bus) => {
             return (
