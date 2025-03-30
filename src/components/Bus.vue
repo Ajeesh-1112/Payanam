@@ -246,8 +246,8 @@ export default {
       rotated: false,
       icons: ["mdi-facebook", "mdi-twitter", "mdi-linkedin", "mdi-instagram"],
 
-      from: null,
-      to: null,
+      from:"Coimbatore",
+      to: "Chennai",
       date: null,
       description: [
         {

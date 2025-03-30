@@ -1,45 +1,106 @@
 <template>
-  <v-container :fluid="true" class="px-0 py-0">
+  <v-container
+    :fluid="true"
+    class="px-0 py-1 bg-grey-lighten-4"
+    style="height: 91vh"
+  >
     <!-- Chnage Place -->
     <v-container
       :fluid="true"
-      class="px-4 pt-6 border"
-      style="
-        background-color: #f9f9f9;
-        position: fixed;
-        top: 70px;
-        z-index: 10;
-        left: 0;
-        right: 0;
-      "
+      height="84px"
+      class="px-0 border bg-orange-lighten-2 mt-1"
+      style="position: fixed; top: 70px; z-index: 10; left: 0; right: 0"
     >
-      <v-row class="d-flex align-center px-6">
-        <v-col class="py-0 px-4" cols="1">
-          <v-text-field
+      <v-container class="pa-0">
+        <v-row no-gutters class="d-flex ga-5 align-center">
+          <v-col cols="2">
+            <v-autocomplete
+              class="rounded-lg bg-white pa-1"
+              v-model="serviceStartPlace"
+              item-text="name"
+              item-value="name"
+              hide-details="auto"
+              :items="filteredDistrictsForFrom"
+              label="From"
+              variant="plain"
+            ></v-autocomplete>
+          </v-col>
+          <v-col cols="1" class="text-center ml-8">
+            <div
+              class="bg-orange-lighten-1 text-center"
+              style="border-radius: 10px; width: 44px"
+            >
+              <v-icon size="40px" @click="swapValues" color="red"
+                >mdi-swap-horizontal</v-icon
+              >
+            </div>
+          </v-col>
+          <v-col cols="2">
+            <v-autocomplete
+              class="rounded-lg bg-white pa-1"
+              v-model="serviceEndPlace"
+              item-text="name"
+              item-value="name"
+              :items="filteredDistrictsForTo"
+              label="To"
+              hide-details="auto"
+              variant="plain"
+            ></v-autocomplete>
+          </v-col>
+          <v-col cols="2">
+            <v-text-field
+              v-model="serviceDate"
+              label="Date"
+              class="bg-white rounded-lg pa-1"
+              hide-details
+              variant="plain"
+            ></v-text-field>
+          </v-col>
+          <v-col cols="1">
+            <v-btn
+              @click="getbusData()"
+              class="bg-white text-orange px-10"
+              color="red"
+              size="large"
+              variant="outlined"
+            >
+              <v-card-text class="py-0 font-weight-bold text-subtitle-2"
+                >Modify</v-card-text
+              >
+            </v-btn>
+          </v-col>
+        </v-row>
+      </v-container>
+
+      <!-- <v-row class="d-flex align-center " no-gutters>
+        <v-col  cols="2">
+          <v-autocomplete
             v-model="serviceStartPlace"
-            density="compact"
+            item-text="name"
+            item-value="name"
+            :items="filteredDistrictsForFrom"
             label="From"
-            hide-details
-            class="py-3"
-            variant="plain"
-          ></v-text-field>
+            variant="outlined"
+          ></v-autocomplete>
         </v-col>
         <v-col cols="1" class="text-center text-h5">
-          <v-icon color="red">mdi-swap-horizontal</v-icon>
+          <v-icon @click="swapValues" color="orange"
+            >mdi-swap-horizontal</v-icon
+          >
         </v-col>
-        <v-col class="py-0" cols="1">
-          <v-text-field
+        <v-col class="text-center" cols="2">
+          <v-autocomplete
             v-model="serviceEndPlace"
-            density="compact"
-            label="To"
-            hide-details
-            color="blue"
-            class="py-3"
-            variant="plain"
-          ></v-text-field>
+            item-text="name"
+            item-value="name"
+            :items="filteredDistrictsForFrom"
+            label="From"
+            variant="outlined"
+          ></v-autocomplete>
         </v-col>
-        <v-col class="py-0 mx-10" cols="1">
+        <v-col class="" cols="1">
           <v-text-field
+            style="position: relative; z-index: 10"
             density="compact"
             v-model="serviceDate"
             label="Date"
@@ -49,379 +110,478 @@
           ></v-text-field>
         </v-col>
         <v-col>
-          <v-btn>
-            <v-card-text class="py-0 font-weight-bold text-subtitle-2"
+          <v-btn @click="getbusData()" color="#FFB731" variant="outlined">
+            <v-card-text
+              class="py-0 text-black font-weight-bold text-subtitle-2"
               >Modify</v-card-text
             >
           </v-btn>
         </v-col>
-      </v-row>
+      </v-row> -->
     </v-container>
     <v-container
-      v-if="availabelBus && availabelBus.length > 0"
       :fluid="true"
       class="px-6 py-0 d-flex"
-      style="background-color: #f9f9f9; margin-top: 80px"
+      style="margin-top: 90px"
     >
-      <!-- Filter Section -->
-      <v-skeleton-loader
-        type=" article, actions"
-        :loading="loadingBuses"
-        class="mr-6"
-        flat
-        style="width: 400px"
-      >
-        <v-row>
-          <v-col>
-            <v-card-text class="text-subtitle-1 font-weight-bold"
-              >Filters</v-card-text
-            >
-          </v-col>
-          <v-col class="d-flex align-center justify-end">
-            <v-icon color="grey">mdi-sort-variant</v-icon>
-          </v-col>
-        </v-row>
-        <v-divider></v-divider>
-        <v-row class="d-flex flex-column">
-          <v-col class="py-0">
-            <v-card-text class="font-weight-bold">Ac</v-card-text>
-          </v-col>
-          <v-col class="d-flex py-0 justify-space-evenly">
-            <v-btn
-              variant="outlined"
-              density="comfortable"
-              prepend-icon="mdi-sun-snowflake"
-              :class="{ 'selected-btn': isAcSelected }"
-              @click="filterSelected('ac')"
-            >
-              AC
-            </v-btn>
-            <v-btn
-              variant="outlined"
-              density="comfortable"
-              prepend-icon="mdi-sun-snowflake"
-              :class="{ 'selected-btn': isNonAcSelected }"
-              @click="filterSelected('nAc')"
-            >
-              Non-Ac
-            </v-btn>
-          </v-col>
-        </v-row>
-        <v-divider class="mt-8 mb-2"></v-divider>
+      <div class="container" v-if="loading">
+        <div class="row" style="background-color: ">
+          <!-- Filters Section -->
+          <div class="col-md-3">
+            <div class="card p-3 shadow-sm">
+              <div class="skeleton w-100 mb-3" style="height: 20px"></div>
+              <div class="skeleton w-50 mb-3" style="height: 20px"></div>
+              <div class="skeleton w-75 mb-3" style="height: 20px"></div>
+              <div class="skeleton w-100 mb-3" style="height: 40px"></div>
+              <div class="skeleton w-100 mb-3" style="height: 20px"></div>
+              <div class="skeleton w-50 mb-3" style="height: 20px"></div>
+              <div class="skeleton w-75 mb-3" style="height: 20px"></div>
+              <div class="skeleton w-100 mb-3" style="height: 40px"></div>
+            </div>
+          </div>
 
-        <v-row class="d-flex flex-column">
-          <v-col class="py-0">
-            <v-card-text class="text-subtitle-2 font-weight-bold"
-              >Seat Type</v-card-text
+          <!-- Bus Listings -->
+          <div class="col-md-9">
+            <div class="mb-3"></div>
+            <div class="card p-3 mb-3 shadow-sm">
+              <div class="row">
+                <div class="col-md-3">
+                  <div class="skeleton w-100 mb-2" style="height: 20px"></div>
+                  <div class="skeleton w-75" style="height: 15px"></div>
+                </div>
+                <div class="col-md-3">
+                  <div class="skeleton w-100 mb-2" style="height: 20px"></div>
+                  <div class="skeleton w-50" style="height: 15px"></div>
+                </div>
+                <div class="col-md-3">
+                  <div class="skeleton w-50 mb-2" style="height: 20px"></div>
+                  <div class="skeleton w-75" style="height: 15px"></div>
+                </div>
+                <div class="col-md-3 text-end">
+                  <div class="skeleton w-50 mb-2" style="height: 20px"></div>
+                  <div class="skeleton w-75" style="height: 15px"></div>
+                </div>
+              </div>
+              <div class="row mt-3">
+                <div class="col text-end">
+                  <div class="skeleton w-25" style="height: 35px"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card p-3 mb-3 shadow-sm">
+              <div class="row">
+                <div class="col-md-3">
+                  <div class="skeleton w-100 mb-2" style="height: 20px"></div>
+                  <div class="skeleton w-75" style="height: 15px"></div>
+                </div>
+                <div class="col-md-3">
+                  <div class="skeleton w-100 mb-2" style="height: 20px"></div>
+                  <div class="skeleton w-50" style="height: 15px"></div>
+                </div>
+                <div class="col-md-3">
+                  <div class="skeleton w-50 mb-2" style="height: 20px"></div>
+                  <div class="skeleton w-75" style="height: 15px"></div>
+                </div>
+                <div class="col-md-3 text-end">
+                  <div class="skeleton w-50 mb-2" style="height: 20px"></div>
+                  <div class="skeleton w-75" style="height: 15px"></div>
+                </div>
+              </div>
+              <div class="row mt-3">
+                <div class="col text-end">
+                  <div class="skeleton w-25" style="height: 35px"></div>
+                </div>
+              </div>
+            </div>
+            <div class="card p-3 mb-3 shadow-sm">
+              <div class="row">
+                <div class="col-md-3">
+                  <div class="skeleton w-100 mb-2" style="height: 20px"></div>
+                  <div class="skeleton w-75" style="height: 15px"></div>
+                </div>
+                <div class="col-md-3">
+                  <div class="skeleton w-100 mb-2" style="height: 20px"></div>
+                  <div class="skeleton w-50" style="height: 15px"></div>
+                </div>
+                <div class="col-md-3">
+                  <div class="skeleton w-50 mb-2" style="height: 20px"></div>
+                  <div class="skeleton w-75" style="height: 15px"></div>
+                </div>
+                <div class="col-md-3 text-end">
+                  <div class="skeleton w-50 mb-2" style="height: 20px"></div>
+                  <div class="skeleton w-75" style="height: 15px"></div>
+                </div>
+              </div>
+              <div class="row mt-3">
+                <div class="col text-end">
+                  <div class="skeleton w-25" style="height: 35px"></div>
+                </div>
+              </div>
+            </div>
+            <div class="card p-3 mb-3 shadow-sm">
+              <div class="row">
+                <div class="col-md-3">
+                  <div class="skeleton w-100 mb-2" style="height: 20px"></div>
+                  <div class="skeleton w-75" style="height: 15px"></div>
+                </div>
+                <div class="col-md-3">
+                  <div class="skeleton w-100 mb-2" style="height: 20px"></div>
+                  <div class="skeleton w-50" style="height: 15px"></div>
+                </div>
+                <div class="col-md-3">
+                  <div class="skeleton w-50 mb-2" style="height: 20px"></div>
+                  <div class="skeleton w-75" style="height: 15px"></div>
+                </div>
+                <div class="col-md-3 text-end">
+                  <div class="skeleton w-50 mb-2" style="height: 20px"></div>
+                  <div class="skeleton w-75" style="height: 15px"></div>
+                </div>
+              </div>
+              <div class="row mt-3">
+                <div class="col text-end">
+                  <div class="skeleton w-25" style="height: 35px"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        class="container d-flex ga-6"
+        v-else
+        style="height: 85vh; overflow-y: scroll"
+      >
+        <template v-if="availabelBus.length > 0">
+          <!-- FILTER -->
+          <v-container
+            width="400px"
+            height="fit-content"
+            flat
+            class="border bg-white pa-0"
+          >
+            <v-row
+              no-gutters
+              class="border-b pa-3 py-3 bg-grey-lighten-2 box-shadow"
             >
-          </v-col>
-          <v-col class="d-flex justify-space-evenly">
-            <v-btn
-              variant="outlined"
-              density="comfortable"
-              prepend-icon="mdi-sun-snowflake"
-              :class="{ 'selected-btn': isSeater }"
-              @click="filterSelected('seater')"
-            >
-              Seeter
-            </v-btn>
-            <v-btn
-              density="comfortable"
-              variant="outlined"
-              prepend-icon="mdi-sun-snowflake"
-              :class="{ 'selected-btn': isSleeper }"
-              @click="filterSelected('sleeper')"
-            >
-              Sleeper
-            </v-btn>
-          </v-col>
-        </v-row>
-        <v-divider class="mt-8"></v-divider>
-        <v-row class="d-flex flex-column">
-          <v-col>
-            <v-card-text class="font-weight-bold">Departure Time</v-card-text>
-            <v-list>
-              <v-list-item
-                class="pa-0 pl-4 ma-0"
-                v-for="(time, i) in departureTime"
-                :key="i"
-              >
+              <v-col class="font-weight-bold">
+                <span class="text-subtitle-2 font-weight-bold">FILTER</span>
+              </v-col>
+            </v-row>
+            <p class="pl-3 mt-1 font-weight-bold mb-0">Price</p>
+            <v-row no-gutters class="pa-2 border-b">
+              <v-col>
                 <v-checkbox
-                  color="red"
+                  append-icon="mdi-cash"
                   density="compact"
-                  :prepend-icon="time.icon"
-                  class="custom-checkbox"
-                  :label="time.text"
+                  label="Price Low to High"
                 ></v-checkbox>
-              </v-list-item>
-            </v-list>
-          </v-col>
-        </v-row>
-      </v-skeleton-loader>
-      <v-card width="100%" color="#F5F5F5" flat>
-        <v-container class="px-0 py-0 rounded-b-lg bg-white">
-          <!-- Top Date -->
-          <v-sheet max-width="1300">
-            <v-slide-group hide-arrows class="ma-2">
-              <v-slide-group-item v-for="(date, i) in datesArray" :key="i">
-                <v-btn
-                  :color="selectedDate === date ? 'primary' : 'grey'"
-                  class="ma-2 px-0 py-0"
-                  variant="plain"
-                  size="small"
-                  @click="selectDate(date)"
+                <v-checkbox
+                  append-icon="mdi-cash-multiple"
+                  density="compact"
+                  label="Price High to Low"
+                ></v-checkbox>
+              </v-col>
+            </v-row>
+            <p class="pl-3 mt-1 font-weight-bold mb-0">Bus Type</p>
+            <v-row no-gutters class="pa-2 border-b">
+              <v-col>
+                <v-checkbox
+                  append-icon="mdi-air-conditioner"
+                  density="compact"
+                  label="Ac"
+                ></v-checkbox>
+                <v-checkbox
+                  append-icon="mdi-close-circle-outline"
+                  density="compact"
+                  label="Non Ac"
+                ></v-checkbox>
+              </v-col>
+            </v-row>
+          </v-container>
+          <!-- BUS DATA -->
+
+          <v-container width="100%" class="pa-0 mb-10 bg-grey-lighten-4">
+            <v-card class="bg-white pa-4 border" flat>
+              <v-row no-gutters class="d-flex gap-4">
+                <v-col
+                  md="3"
+                  sm="12"
+                  cols="12"
+                  style="border-radius: 20px"
+                  class="pa-2"
+                  v-for="(offer, i) in offers"
+                  :key="i"
+                  :style="{ background: offer.gradient }"
                 >
-                  <v-card-text class="px-0 py-0">{{ date }}</v-card-text>
-                </v-btn>
-                <v-divider vertical></v-divider>
-              </v-slide-group-item>
-            </v-slide-group>
-          </v-sheet>
-          <v-divider></v-divider>
-          <!-- Offers Card -->
-          <v-sheet>
-            <v-skeleton-loader
-              :loading="loadingBuses"
-              class="my-2 mx-2"
-              type="list-item-two-line,actions"
-            >
-              <v-slide-group show-arrows>
-                <v-slide-group-item v-for="(offer, i) in offers" :key="i">
-                  <v-card
-                    class="py-4 px-2 rounded-xl my-2 mx-4"
-                    :style="{
-                      background: offer.gradient,
-                      color: 'white',
-                    }"
+                  <span class="text-subtitle-1 font-weight-bold">{{
+                    offer.title
+                  }}</span
+                  ><br />
+                  <span
+                    style="font-size: 8px"
+                    class="text-subtitle-2 text-grey-darken-2"
+                    >{{ offer.subTitle }}</span
+                  ><br />
+                  <v-btn
+                    width="30px"
+                    class="mt-2 pa-1"
+                    color="white"
+                    variant="outlined"
+                    rounded="lg"
+                    density="compact"
+                    append-icon="mdi-arrow-right"
                   >
-                    <v-row>
-                      <v-col class="px-0">
-                        <v-card-title>{{ offer.title }}</v-card-title>
-                        <v-card-subtitle>
-                          {{ offer.subTitle }}
-                        </v-card-subtitle>
-                        <v-btn
-                          append-icon="mdi-arrow-right"
-                          class="ml-4 my-2 rounded-lg"
-                          color="white"
-                          variant="outlined"
-                        >
-                          <v-card-text class="px-0 py-0 text-white"
-                            >Book Seat</v-card-text
-                          >
-                        </v-btn>
+                    <span>See</span>
+                  </v-btn>
+                </v-col>
+              </v-row>
+            </v-card>
+            <v-card v-for="(bus, i) in availabelBus" :key="i" flat class="mb-2">
+              <v-card class="bg-white d-flex">
+                <v-row no-gutters>
+                  <v-col cols="12">
+                    <v-row no-gutters class="pa-4">
+                      <v-col cols="3">
+                        <strong class="d-block">{{ bus.companyName }}</strong>
+                        <span class="d-block">Bharat Benz</span>
+                        <span style="font-size: 12px"
+                          >{{ bus.busType }} Seater
+                        </span>
                       </v-col>
-                      <v-col class="px-0">
-                        <v-card-text>
-                          <v-icon>mdi-magnify</v-icon>
-                          {{ offer.companyName }}
-                        </v-card-text>
+                      <v-col cols="2">
+                        <strong class="d-block">{{ bus.departureTime }}</strong>
+                        <span>{{ bus.serviceStartPlace }}</span>
+                      </v-col>
+                      <v-col class="d-flex align-center" cols="5">
+                        <div
+                          style="
+                            width: 100%;
+                            height: 1px;
+                            background-color: grey;
+                          "
+                        ></div>
+                        <div class="border rounded-pill pa-3">
+                          <span>{{
+                            calculateTravelHours(
+                              bus.departureTime,
+                              bus.arrivalTime
+                            )
+                          }} hrs</span>
+                        </div>
+                        <div
+                          style="
+                            width: 100%;
+                            height: 1px;
+                            background-color: grey;
+                          "
+                        ></div>
+                      </v-col>
+                      <v-col cols="2" class="text-end">
+                        <strong class="d-block">{{ bus.arrivalTime }}</strong>
+                        <span>{{ bus.serviceEndPlace }}</span>
                       </v-col>
                     </v-row>
-                  </v-card>
-                </v-slide-group-item>
-              </v-slide-group>
-            </v-skeleton-loader>
-          </v-sheet>
-          <!-- Sort By  -->
-          <v-sheet class="d-flex justify-space-between">
-            <v-card-text class="font-weight-bold">
-              {{ availabelBus ? availabelBus.length : 0 }} Bus available
-            </v-card-text>
-            <v-spacer></v-spacer>
-            <v-chip-group
-              class="text-end"
-              v-for="(sort, i) in userSelectedSort"
-              :key="i"
-            >
-              <v-chip
-                @click:close="removeChip(index, sort.value)"
-                closable
-                class="bg-red"
-                variant="tonal"
-                >{{ sort.text }}</v-chip
-              >
-            </v-chip-group>
-            <v-spacer></v-spacer>
-            <v-menu>
-              <template v-slot:activator="{ props }">
-                <v-card-text class="text-end" v-bind="props"
-                  >Sort By <v-icon>mdi-menu-down</v-icon>
-                </v-card-text>
-              </template>
-              <v-list>
-                <v-list-item
-                  v-for="(item, index) in sortItems"
-                  :key="index"
-                  @click="selectSort(item)"
-                  :value="index"
-                >
-                  <v-list-item-title>{{ item.text }}</v-list-item-title>
-                </v-list-item>
-              </v-list>
-            </v-menu>
-          </v-sheet>
-        </v-container>
-        <v-container class="px-0">
-          <v-skeleton-loader
-            type="card,actions"
-            class="mt-4 px-2 py-2 rounded-lg"
-            v-for="(bus, i) in availabelBus"
-            :key="i"
-            :loading="loadingBuses"
-          >
-            <v-row class="d-flex align-start">
-              <v-col>
-                <v-card-title>{{ bus.companyName }}</v-card-title>
-                <v-card-subtitle
-                  >{{ bus.busType }} sleeper/seater(2+1)</v-card-subtitle
-                >
-              </v-col>
+                  </v-col>
 
-              <v-col class="d-flex">
-                <v-card-title class="text-subtitle-2">
-                  <span class="text-h6 font-weight-bold">{{
-                    bus.departureTime
-                  }}</span>
-                </v-card-title>
-                <v-card-title class="text-h6 text-red">
-                  ____{{
-                    calculateTravelHours(bus.departureTime, bus.arrivalTime)
-                  }}hrs_____
-                </v-card-title>
-                <v-card-title class="text-subtitle-2">
-                  <span class="text-h6 font-weight-bold">{{
-                    bus.arrivalTime
-                  }}</span>
-                </v-card-title>
-              </v-col>
-              <v-col class="text-end"
-                ><v-card-text class="text-subtitle-1 font-weight-bold">{{
-                  bus.seaterPrice
-                }}</v-card-text>
-                <v-card-text class="text-red py-0 pt-2"
-                  >{{ bus.totalSeat }} Seats Left</v-card-text
-                >
-              </v-col>
-            </v-row>
-            <v-row style="width: 100%">
-              <v-col>
-                <v-rating
-                  half-increments
-                  readonly
-                  v-model="rating"
-                  active-color="primary"
-                />
-                <v-card-subtitle>{{ rating }}</v-card-subtitle>
-              </v-col>
+                  <!-- Ratings -->
+                  <v-col class="pa-4" style="border-top: 1px dashed grey">
+                    <v-row no-gutters>
+                      <v-col class="d-flex align-center">
+                        <div
+                          class="bg-green text-center rounded-sm"
+                          style="width: 56px"
+                        >
+                          <span>
+                            4.3 <v-icon size="10px">mdi-star</v-icon>
+                          </span>
+                        </div>
+                        <div class="bg-grey-lighten-4 pr-1 rounded-sm">
+                          <span style="font-size: 10px; color: grey">
+                            <v-icon size="16px" color="grey"
+                              >mdi-account-outline</v-icon
+                            >1234
+                          </span>
+                        </div>
+                      </v-col>
+                      <v-col>
+                        <span style="font-size: 14px; color: grey">
+                          Travel Policy <v-icon>mdi-menu-down</v-icon>
+                        </span>
+                      </v-col>
+                      <v-col>
+                        <span style="font-size: 14px; color: orange">
+                          Cancellation Policy <v-icon>mdi-menu-down</v-icon>
+                        </span>
+                      </v-col>
+                    </v-row>
+                  </v-col>
+                </v-row>
 
-              <v-col class="text-end">
-                <v-btn color="#D84E55" @click="toggleSeatLayout(i)">
-                  {{ expandedIndex === i ? "Hide Seats" : "Select Seat" }}
-                </v-btn>
-              </v-col>
-            </v-row>
-            <v-row class="ml-6">
+                <!-- Price & Select Seat Button -->
+                <v-row
+                  no-gutters
+                  style="border-left: 1px dashed grey"
+                  class="pa-4"
+                >
+                  <v-col class="text-end">
+                    <v-row no-gutters>
+                      <v-col cols="12">
+                        <span
+                          style="font-size: 16px"
+                          class="d-block text-grey-darken-3"
+                          >Starts at</span
+                        >
+                        <span class="text-h5">{{ bus.sleeperPrice }}</span>
+                      </v-col>
+                      <v-col class="mt-5">
+                        <v-btn
+                          block
+                          flat
+                          append-icon="mdi-menu-down"
+                          color="#FEB62E"
+                          class="text-white"
+                          @click="toggleExpansion(i)"
+                        >
+                          Select Seat
+                        </v-btn>
+                      </v-col>
+                    </v-row>
+                  </v-col>
+                </v-row>
+              </v-card>
               <v-expand-transition>
-                <v-card flat v-if="expandedIndex === i" class="pt-4">
-                  <v-row class="py-2 px-4">
-                    <!-- LOwer Deck -->
-                    <v-col cols="2">
-                      <h4 class="mb-4">Lower Deck</h4>
-                      <v-row
-                        style="display: grid; grid-template-columns: 1fr 1fr"
+                <div v-if="expandedIndex === i" class="border-top">
+                  <v-row flat class="pa-4 bg-white" no-gutters>
+                    <!-- Left side seats (L1, L2) -->
+                    <v-col cols="1">
+                      <div
+                        class="mt-16"
+                        style="
+                          display: grid;
+                          grid-template-columns: 1fr 1fr;
+                          row-gap: 10px;
+                        "
                       >
-                        <v-col
-                          v-for="(seat, i) in lowerDeckSeats"
-                          :key="i"
-                          cols="auto"
+                        <div
+                          class="seat"
+                          v-for="(seat, index) in leftSeats"
+                          :key="index"
+                          :class="{ selected: selectedSeats.includes(seat) }"
+                          @click="toggleSeatSelection(seat)"
                         >
-                          <v-btn
-                            :disabled="seat.booked"
-                            :color="
-                              seat.booked
-                                ? 'blue'
-                                : seat.selected
-                                ? 'red'
-                                : 'default'
-                            "
-                            @click="toggleSeatSelection(seat)"
-                            outlined
-                            size="small"
-                          >
-                            {{ seat.label }}
-                          </v-btn>
-                        </v-col>
-                      </v-row>
+                          {{ seat }}
+                        </div>
+                      </div>
                     </v-col>
-                    <!-- Upper Deck -->
-                    <v-col cols="2">
-                      <h4 class="mb-4">Upper Deck</h4>
-                      <v-row
-                        style="display: grid; grid-template-columns: 1fr 1fr"
+
+                    <!-- Right side seats (R1, R2) -->
+                    <v-col cols="1" class="ml-4">
+                      <div class="text-end mr-4 mb-1">
+                        <v-icon class="text-end">mdi-tire</v-icon>
+                      </div>
+                      <div
+                        style="
+                          display: grid;
+                          grid-template-columns: 1fr 1fr;
+                          row-gap: 10px;
+                        "
                       >
-                        <v-col
-                          v-for="(seat, i) in upperDeckSeats"
-                          :key="i"
-                          cols="auto"
+                        <div
+                          class="seat"
+                          v-for="(seat, index) in rightSeats"
+                          :key="index"
+                          :class="{ selected: selectedSeats.includes(seat) }"
+                          @click="toggleSeatSelection(seat)"
                         >
-                          <v-btn
-                            :disabled="seat.booked"
-                            :color="
-                              seat.booked
-                                ? 'blue'
-                                : seat.selected
-                                ? 'red'
-                                : 'default'
-                            "
-                            size="small"
-                            @click="toggleSeatSelection(seat)"
-                            outlined
-                          >
-                            {{ seat.label }}
-                          </v-btn>
-                        </v-col>
-                      </v-row>
+                          {{ seat }}
+                        </div>
+                      </div>
                     </v-col>
-                    <v-col
-                      cols="2"
-                      class="d-flex align-end flex-column justify-center"
-                    >
-                      <v-card-text
-                        >Seat No :{{ selectedSeats.join(", ") }}</v-card-text
+
+                    <v-col cols="4" class="text-center">
+                      <p class="mb-2">Selected Seats Numbers</p>
+
+                      <span
+                        class="mr-1"
+                        v-for="(seat, i) in selectedSeats"
+                        :key="i"
                       >
-                      <v-card-title
-                        >Price:{{
-                          totalTicketPrice(bus.seaterPrice)
-                        }}</v-card-title
+                        {{ seat }}</span
                       >
                       <v-btn
-                        :disabled="!anySeatsSelected"
-                        color="blue"
+                        variant="outlined"
+                        color="orange"
+                        style="margin-top: 180px"
                         @click="bookingPage(bus)"
-                        >Book ticket</v-btn
+                        >Book your seat</v-btn
                       >
                     </v-col>
-                    <v-col cols="6">
-                      <ThreeScene />
+                    <v-col cols="5" class="text-end">
+                      <div>
+                        <p>
+                          Experience a
+                          <span class="font-weight-bold text-h5">3D</span>
+                          Interactive Bus Seat Selection!
+                        </p>
+                        <p class="text-grey-darken-1" style="font-size: 13px">
+                          Explore our immersive 3D seat selection feature that
+                          lets you visualize and choose your preferred seat with
+                          ease. Rotate, zoom, and click on any seat to select or
+                          deselect in real time. Enjoy a seamless and
+                          interactive booking experience like never before!
+                        </p>
+
+                        <v-dialog v-model="dialog" fullscreen persistent>
+                          <template
+                            v-slot:activator="{ props: activatorProps }"
+                          >
+                            <v-btn
+                              v-bind="activatorProps"
+                              color="#FFB74D"
+                              class="text-white"
+                              flat
+                            >
+                              3D Experience
+                            </v-btn>
+                          </template>
+
+                          <v-card>
+                            <ThreeScene />
+                          </v-card>
+                        </v-dialog>
+                      </div>
                     </v-col>
                   </v-row>
-                </v-card>
+                </div>
               </v-expand-transition>
-            </v-row>
-          </v-skeleton-loader>
-        </v-container>
-      </v-card>
-    </v-container>
-    <v-container v-else height="90vh">
-      <v-img src="/Nobuses.webp"></v-img>
+            </v-card>
+          </v-container>
+        </template>
+        <template v-else>
+          <v-container
+            class="d-flex align-center justify-center"
+            style="height: 100%"
+          >
+            <v-card class="pa-4 text-center">
+              <v-icon size="48" color="grey">mdi-bus-off</v-icon>
+              <p class="text-h6 font-weight-bold mt-2">No Buses Available</p>
+              <p class="text-body-2 text-grey">
+                Please try searching for another route.
+              </p>
+            </v-card>
+          </v-container>
+        </template>
+      </div>
     </v-container>
   </v-container>
 </template>
 
 <script>
 import { mapState } from "vuex";
-import ThreeScene from "./ThreeScene.vue";
+import ThreeScene from "./ThreeScence.vue";
+import district from "../District/district.json";
+
 export default {
   name: "availableBus",
   components: {
@@ -431,28 +591,39 @@ export default {
   data() {
     return {
       rating: 3.5,
-      isAcSelected: false,
-      isNonAcSelected: false,
-      isSeater: false,
-      isSleeper: false,
-      departureTime: [
-        {
-          text: "Before 6 AM",
-          icon: "mdi-weather-sunset-up",
-        },
-        {
-          text: "6 am to 12pm",
-          icon: "mdi-weather-sunset",
-        },
-
-        {
-          text: "12 pm to 6pm",
-          icon: "mdi-sun-thermometer-outline",
-        },
-        {
-          text: "After 6pm",
-          icon: "mdi-moon-waning-crescent",
-        },
+      dialog: false,
+      isExpanded: false,
+      districtList: [],
+      selectedSeats: [],
+      leftSeats: [
+        "L1",
+        "L2",
+        "L3",
+        "L4",
+        "L5",
+        "L6",
+        "L7",
+        "L8",
+        "L9",
+        "L10",
+        "L11",
+        "L12",
+      ],
+      rightSeats: [
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8",
+        "R9",
+        "R10",
+        "R11",
+        "R12",
+        "R13",
+        "R14",
       ],
       sortItems: [
         {
@@ -476,7 +647,7 @@ export default {
         },
         {
           title: "Feel Comfotable",
-          subTitle: "feel the comfortable in our travel",
+          subTitle: "feel the comfortable in our travel Experience",
           companyName: "Chakara Travels",
           gradient: "linear-gradient(to right, #00c6ff, #0072ff)",
         },
@@ -487,39 +658,6 @@ export default {
           gradient: "linear-gradient(to right, #fbc2eb, #a6c1ee)",
         },
       ],
-      lowerDeckSeats: [
-        { label: "L1", selected: false, booked: false },
-        { label: "L2", selected: false, booked: false },
-        { label: "L3", selected: false, booked: false },
-        { label: "L4", selected: false, booked: false },
-        { label: "L5", selected: false, booked: false },
-        { label: "L6", selected: false, booked: false },
-        { label: "L7", selected: false, booked: false },
-        { label: "L8", selected: false, booked: false },
-        { label: "L9", selected: false, booked: false },
-        { label: "L10", selected: false, booked: false },
-        { label: "L11", selected: false, booked: false },
-        { label: "L12", selected: false, booked: false },
-        { label: "L13", selected: false, booked: false },
-        { label: "L14", selected: false, booked: false },
-      ],
-      upperDeckSeats: [
-        { label: "U1", selected: false, booked: false },
-        { label: "U2", selected: false, booked: false },
-        { label: "U3", selected: false, booked: false },
-        { label: "U4", selected: false, booked: false },
-        { label: "U5", selected: false, booked: false },
-        { label: "U6", selected: false, booked: false },
-        { label: "U7", selected: false, booked: false },
-        { label: "U8", selected: false, booked: false },
-        { label: "U9", selected: false, booked: true },
-        { label: "U10", selected: false, booked: false },
-        { label: "U11", selected: false, booked: false },
-        { label: "U12", selected: false, booked: false },
-        { label: "U13", selected: false, booked: false },
-        { label: "U14", selected: false, booked: false },
-      ],
-      loadingBuses: false,
       availabelBus: [],
       serviceEndPlace: null,
       serviceStartPlace: null,
@@ -528,30 +666,48 @@ export default {
       totalSeats: null,
       totalTravelHrs: null,
       expandedIndex: null,
+      loading: false,
     };
   },
   methods: {
-    toggleSeatLayout(index) {
-      this.expandedIndex = this.expandedIndex === index ? null : index;
+    isSelected(seat) {
+      return this.selectedSeats.includes(seat);
     },
     toggleSeatSelection(seat) {
-      seat.selected = !seat.selected;
+      const index = this.selectedSeats.indexOf(seat);
+      if (index === -1) {
+        this.selectedSeats.push(seat); // Add seat if not selected
+      } else {
+        this.selectedSeats.splice(index, 1); // Remove seat if already selected
+      }
     },
+    toggleExpansion(index) {
+      this.expandedIndex = this.expandedIndex === index ? null : index;
+    },
+    swapValues() {
+      [this.serviceStartPlace, this.serviceEndPlace] = [
+        this.serviceEndPlace,
+        this.serviceStartPlace,
+      ];
+    },
+
     calculateTravelHours(departureTime, arrivalTime) {
-      const [depHours, depMinutes] = departureTime.split(":").map(Number);
-      const [arrHours, arrMinutes] = arrivalTime.split(":").map(Number);
+  const [depHours, depMinutes] = departureTime.split(":").map(Number);
+  const [arrHours, arrMinutes] = arrivalTime.split(":").map(Number);
 
-      const departureDate = new Date();
-      departureDate.setHours(depHours, depMinutes, 0, 0); // Set departure time
+  const departureDate = new Date();
+  departureDate.setHours(depHours, depMinutes, 0, 0); // Set departure time
 
-      const arrivalDate = new Date();
-      arrivalDate.setHours(arrHours, arrMinutes, 0, 0); // Set arrival time
+  const arrivalDate = new Date();
+  arrivalDate.setHours(arrHours, arrMinutes, 0, 0); // Set arrival time
 
-      const diffInMs = arrivalDate - departureDate;
-      const diffInHours = diffInMs / (1000 * 60 * 60); // Convert from milliseconds to hours
-      this.totalTravelHrs = diffInHours.toFixed(1);
-      return diffInHours.toFixed(1);
-    },
+  const diffInMs = Math.abs(arrivalDate - departureDate); // Always positive
+  const diffInHours = diffInMs / (1000 * 60 * 60); // Convert from milliseconds to hours
+
+  this.totalTravelHrs = diffInHours.toFixed(1);
+  return diffInHours.toFixed(1);
+},
+
     filterSelected(type) {
       if (type === "ac") {
         this.isAcSelected = !this.isAcSelected;
@@ -563,10 +719,7 @@ export default {
         this.isSleeper = !this.isSleeper;
       }
     },
-    removeChip(index, sort) {
-      this.userSelectedSort.splice(index, 1);
-      this.selectSort(sort);
-    },
+
     selectSort(sort) {
       if (this.userSelectedSort.includes(sort.text)) {
         return;
@@ -594,7 +747,7 @@ export default {
       const bookingDetails = {
         busdetails: busDetails,
         price: this.totalPrice,
-        selectedSeats: this.totalSeats,
+        selectedSeats: this.selectedSeats,
         travelHrs: this.totalTravelHrs,
       };
       this.$store.commit("bookingDetails", bookingDetails);
@@ -609,22 +762,29 @@ export default {
       });
     },
     async getbusData() {
+      this.loading = true;
+      this.availabelBus = [];
       try {
         const response = await this.$axios.get(
-          "https://payanam-backend.onrender.com/busServices"
+          `https://payanam-backend.onrender.com/busServices`,
+          {
+            params: {
+              from: this.serviceStartPlace,
+              to: this.serviceEndPlace,
+            },
+          }
         );
-        console.log(response);
-        if (response.status == "200") {
-          this.availabelBus = response.data.filter((bus) => {
-            return (
-              bus.serviceStartPlace === this.serviceStartPlace &&
-              bus.serviceEndPlace === this.serviceEndPlace
-            );
-          });
-          this.loadingBuses = false;
+
+        if (response.status === 200) {
+          console.log(response);
+
+          this.availabelBus = response.data;
         }
+
+        this.loading = false;
       } catch (error) {
         console.error("Error fetching data:", error);
+        this.loading = false;
       }
     },
   },
@@ -635,24 +795,27 @@ export default {
   },
   computed: {
     ...mapState(["count"]),
-    // Computed property to get the selected seats
-    selectedSeats() {
-      const lowerSelected = this.lowerDeckSeats
-        .filter((seat) => seat.selected)
-        .map((seat) => seat.label);
-      const upperSelected = this.upperDeckSeats
-        .filter((seat) => seat.selected)
-        .map((seat) => seat.label);
-      return [...lowerSelected, ...upperSelected];
+
+    filteredDistrictsForFrom() {
+      return this.districtList.filter(
+        (district) => district !== this.serviceEndPlace
+      );
     },
-    anySeatsSelected() {
-      return this.selectedSeats.length > 0;
+    filteredDistrictsForTo() {
+      return this.districtList.filter(
+        (district) => district !== this.serviceStartPlace
+      );
     },
+    totalTravelHours() {
+    if (!this.departureTime || !this.arrivalTime) return "N/A"; // Handle empty values
+    return this.calculateTravelHours(this.departureTime, this.arrivalTime);
+  }
   },
 
   async mounted() {
+    this.districtList = district.states.flatMap((state) => state.districts);
+
     this.availabelBus = [];
-    this.loadingBuses = true;
     const { from, to, date } = this.$route.query;
 
     this.serviceStartPlace = from;
@@ -671,8 +834,61 @@ export default {
 </script>
 
 <style scoped>
+.box-shadow {
+  box-shadow: 0px 0px 10px 1px rgb(128, 128, 128, 0.3);
+}
 .selected-btn {
   color: red;
   border: 2px solid red; /* Match border to background */
+}
+.skeleton {
+  background: linear-gradient(90deg, #eee 25%, #ddd 50%, #eee 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite linear;
+  border-radius: 4px;
+}
+.seat {
+  border: 1px solid #ccc;
+  font-size: 12px;
+  padding: 4px;
+  text-align: center;
+  cursor: pointer;
+  margin-right: 4px;
+  transition: background 0.3s ease;
+}
+
+.seat.selected {
+  background: #4caf50;
+  color: white;
+}
+::v-deep(.v-input--density-compact) {
+  --v-input-control-height: 0px;
+  --v-input-padding-top: 0px !important;
+}
+@keyframes loading {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: -100% 0;
+  }
+}
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #f5f5f5;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #888;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #feb62e;
 }
 </style>

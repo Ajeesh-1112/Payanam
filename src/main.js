@@ -7,6 +7,8 @@ import * as components from "vuetify/components";
 import * as directives from "vuetify/directives";
 import { aliases, mdi } from "vuetify/lib/iconsets/mdi";
 import "vuetify/styles";
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import "@mdi/font/css/materialdesignicons.css";
 import i18n from "./i18n";
 import store from './store';

@@ -9,8 +9,8 @@
             @click.stop="drawer = !drawer"
           ></v-app-bar-nav-icon>
           <v-img
-            src="/logo4.png"
-            width="45px"
+            src="/newtext.png"
+            width="65px"
             class="position-fixed ml-10"
           ></v-img>
           <v-toolbar-title
@@ -24,7 +24,7 @@
           <v-list class="navigation-list w-40 d-flex justify-center">
             <v-list-item
               @click="categories(option.name)"
-              class="ml-2 px-10 text-center rounded-lg"
+              class="ml-2 px-10 text-center rounded-pill"
               :class="{
                 selected_transport: selectedTransport === option.name,
               }"
@@ -106,7 +106,7 @@
                 selected_transport_drawer: selectedTransport === option.name,
               }"
               @click="categories(option.name)"
-              class="px-4 my-2 rounded-lg"
+              class="px-4 my-2"
               v-for="(option, i) in optionAvailable"
               :key="i"
             >
@@ -215,6 +215,7 @@
       </v-card>
     </v-dialog>
   </v-container>
+  
 </template>
 
 <script>
@@ -270,7 +271,6 @@ export default {
     selectAccountOption(value) {
       if (value == "Log out") {
         Cookies.remove("authToken");
-
         location.reload();
       }
     },
@@ -320,6 +320,7 @@ export default {
 }
 .selected_transport {
   background-color: orange;
+  border-radius: 20px;
   color: white;
 }
 .selected_transport_drawer {

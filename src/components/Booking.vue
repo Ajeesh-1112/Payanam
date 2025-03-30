@@ -40,7 +40,9 @@
           <v-row>
             <v-col>
               <v-card-subtitle>
-                <span class="text-h6 font-weight-bold">{{ bookingdata.busdetails.departureTime }}</span> 
+                <span class="text-h6 font-weight-bold">{{
+                  bookingdata.busdetails.departureTime
+                }}</span>
               </v-card-subtitle>
               <v-card-text class="py-1">{{ serviceStartPlace }}</v-card-text>
             </v-col>
@@ -51,7 +53,9 @@
             </v-col>
             <v-col class="text-end">
               <v-card-subtitle>
-                <span class="text-h6 font-weight-bold">{{ bookingdata.busdetails.arrivalTime }}</span> 
+                <span class="text-h6 font-weight-bold">{{
+                  bookingdata.busdetails.arrivalTime
+                }}</span>
               </v-card-subtitle>
               <v-card-text class="py-1">{{ serviceEndPlace }}</v-card-text>
             </v-col>
@@ -70,43 +74,53 @@
                 {{ bookingdata.selectedSeats.join(", ") }}</v-card-text
               >
             </v-col>
-            <v-col cols="4">
-              <v-card-text class="py-1 px-0">Name</v-card-text>
-              <v-text-field
-                v-model="name"
-                variant="outlined"
-                density="compact"
-                color="blue"
-                :rules="[rules.required, rules.minLength]"
-              ></v-text-field>
-            </v-col>
-            <v-col cols="2">
-              <v-card-text class="py-1 px-0">Age *</v-card-text>
-              <v-text-field
-                v-model="age"
-                variant="outlined"
-                density="compact"
-                color="blue"
-                :rules="[rules.required, rules.numeric]"
-              ></v-text-field>
-            </v-col>
-            <v-col cols="4">
-              <v-card-text class="py-0">Gender</v-card-text>
-              <v-col class="d-flex align-center py-0">
-                <v-checkbox
-                  v-model="gender"
-                  value="Male"
-                  label="Male"
-                  :rules="[rules.requiredGender]"
-                ></v-checkbox>
-                <v-checkbox
-                  v-model="gender"
-                  value="Female"
-                  label="Female"
-                  :rules="[rules.requiredGender]"
-                ></v-checkbox>
+
+            <template
+              v-for="(seat, index) in bookingdata.selectedSeats"
+              :key="seat"
+            >
+              <v-col cols="3">
+                <v-card-text class="py-1 px-0"
+                  >Name (Passenger {{ index + 1 }})</v-card-text
+                >
+                <v-text-field
+                  v-model="passengers[index].name"
+                  variant="outlined"
+                  density="compact"
+                  color="blue"
+                  :rules="[rules.required, rules.minLength]"
+                ></v-text-field>
               </v-col>
-            </v-col>
+
+              <v-col cols="2">
+                <v-card-text class="py-1 px-0">Age *</v-card-text>
+                <v-text-field
+                  v-model="passengers[index].age"
+                  variant="outlined"
+                  density="compact"
+                  color="blue"
+                  :rules="[rules.required, rules.numeric]"
+                ></v-text-field>
+              </v-col>
+
+              <v-col cols="4">
+                <v-card-text class="py-0">Gender</v-card-text>
+                <v-col class="d-flex align-center py-0">
+                  <v-checkbox
+                    v-model="passengers[index].gender"
+                    value="Male"
+                    label="Male"
+                    :rules="[rules.requiredGender]"
+                  ></v-checkbox>
+                  <v-checkbox
+                    v-model="passengers[index].gender"
+                    value="Female"
+                    label="Female"
+                    :rules="[rules.requiredGender]"
+                  ></v-checkbox>
+                </v-col>
+              </v-col>
+            </template>
           </v-row>
         </v-card>
         <!-- Contact Details -->
@@ -149,7 +163,7 @@
         </v-card>
       </v-card>
       <!-- Right Side -->
-      <v-card width="30%" class="px-4 elevation-4 py-4" height="50vh">
+      <v-card width="30%" class="px-4 elevation-4 py-4" height="54vh">
         <v-card-title>Price Details</v-card-title>
         <v-row class="d-flex align-center">
           <v-col class="py-0">
@@ -190,10 +204,10 @@ export default {
       serviceStartPlace: null,
       serviceEndPlace: null,
       serviceDate: null,
-
-      name: "", 
+      passengers: [],
+      name: "",
       age: "",
-      gender: "", 
+      gender: "",
       rules: {
         required: (value) => !!value || "This field is required.",
         numeric: (value) =>
@@ -216,19 +230,36 @@ export default {
   },
   methods: {
     paymentPage() {
-      if (!this.name || !this.email || !this.age ||!this.mobileNumber ||!this.gender) {
-        alert("FILL ALL THE REQUIRED FILEDS")
-        return;
-      }
-      const userData = { 
-        name:this.name,
-        age:this.age,
-        gender:this.gender,
-        email:this.email,
-        mobilenumber:this.mobileNumber
+      for (let i = 0; i < this.passengers.length; i++) {
+        const passenger = this.passengers[i];
 
+        if (!passenger.name || !passenger.age || !passenger.gender) {
+          alert(
+            `Please fill all details for Passenger ${
+              i + 1
+            } (Name, Age, Gender).`
+          );
+          return; 
+        }
       }
-      this.$store.commit("userDetails",userData)
+
+      if(! this.email){
+        alert("Enter Email ID")
+        return; 
+      }
+
+      if(!this.mobileNumber){
+        alert("Enter Mobile Number")
+        return; 
+      }
+
+      const userData = {
+        passengers: this.passengers, 
+        email: this.email,
+        mobilenumber: this.mobileNumber,
+      };
+
+      this.$store.commit("userDetails", userData);
       this.$router.push({
         name: "payment",
         query: {
@@ -241,6 +272,23 @@ export default {
   },
   computed: {
     ...mapState(["bookingdata"]),
+  },
+  watch: {
+    "bookingdata.selectedSeats": {
+      handler(newSeats) {
+        if (!Array.isArray(newSeats)) {
+          this.passengers = [];
+          return;
+        }
+        this.passengers = newSeats.map(() => ({
+          name: "",
+          age: "",
+          gender: "",
+        }));
+      },
+      deep: true,
+      immediate: true,
+    },
   },
   mounted() {
     const { from, to, date } = this.$route.query;
