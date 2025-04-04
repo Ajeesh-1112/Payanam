@@ -248,11 +248,11 @@
         </div>
       </div>
       <div
-        class="container d-flex ga-6"
+        class="container d-flex gap-3"
         v-else
-        style="height: 85vh; overflow-y: scroll"
+        style="height: 78vh; overflow-y: scroll"
       >
-        <template v-if="availabelBus.length > 0">
+        <template v-if="sortedBuses.length > 0">
           <!-- FILTER -->
           <v-container
             width="400px"
@@ -274,11 +274,13 @@
                 <v-checkbox
                   append-icon="mdi-cash"
                   density="compact"
+                  v-model="isPriceLowToHigh"
                   label="Price Low to High"
                 ></v-checkbox>
                 <v-checkbox
                   append-icon="mdi-cash-multiple"
                   density="compact"
+                  v-model="isPriceHighToLow"
                   label="Price High to Low"
                 ></v-checkbox>
               </v-col>
@@ -290,11 +292,13 @@
                   append-icon="mdi-air-conditioner"
                   density="compact"
                   label="Ac"
+                  v-model="isAC"
                 ></v-checkbox>
                 <v-checkbox
                   append-icon="mdi-close-circle-outline"
                   density="compact"
                   label="Non Ac"
+                  v-model="isNonAC"
                 ></v-checkbox>
               </v-col>
             </v-row>
@@ -337,7 +341,7 @@
                 </v-col>
               </v-row>
             </v-card>
-            <v-card v-for="(bus, i) in availabelBus" :key="i" flat class="mb-2">
+            <v-card v-for="(bus, i) in sortedBuses" :key="i" flat class="mb-2">
               <v-card class="bg-white d-flex">
                 <v-row no-gutters>
                   <v-col cols="12">
@@ -362,12 +366,15 @@
                           "
                         ></div>
                         <div class="border rounded-pill pa-3">
-                          <span>{{
-                            calculateTravelHours(
-                              bus.departureTime,
-                              bus.arrivalTime
-                            )
-                          }} hrs</span>
+                          <span
+                            >{{
+                              calculateTravelHours(
+                                bus.departureTime,
+                                bus.arrivalTime
+                              )
+                            }}
+                            hrs</span
+                          >
                         </div>
                         <div
                           style="
@@ -465,12 +472,15 @@
                       >
                         <div
                           class="seat"
-                          v-for="(seat, index) in leftSeats"
+                          v-for="(seat, index) in bus.leftSeats"
                           :key="index"
-                          :class="{ selected: selectedSeats.includes(seat) }"
-                          @click="toggleSeatSelection(seat)"
+                          :class="{
+                            selected: seat.selected,
+                            booked: seat.booked,
+                          }"
+                          @click="toggleSeatSelection(bus, seat)"
                         >
-                          {{ seat }}
+                          {{ seat.label }}
                         </div>
                       </div>
                     </v-col>
@@ -489,12 +499,15 @@
                       >
                         <div
                           class="seat"
-                          v-for="(seat, index) in rightSeats"
+                          v-for="(seat, index) in bus.rightSeats"
                           :key="index"
-                          :class="{ selected: selectedSeats.includes(seat) }"
-                          @click="toggleSeatSelection(seat)"
+                          :class="{
+                            selected: seat.selected,
+                            booked: seat.booked,
+                          }"
+                          @click="toggleSeatSelection(bus, seat)"
                         >
-                          {{ seat }}
+                          {{ seat.label }}
                         </div>
                       </div>
                     </v-col>
@@ -532,7 +545,7 @@
                           interactive booking experience like never before!
                         </p>
 
-                        <v-dialog v-model="dialog" fullscreen persistent>
+                        <v-dialog v-model="dialog" fullscreen>
                           <template
                             v-slot:activator="{ props: activatorProps }"
                           >
@@ -563,7 +576,7 @@
             class="d-flex align-center justify-center"
             style="height: 100%"
           >
-            <v-card class="pa-4 text-center">
+            <v-card class="pa-4 text-center" flat>
               <v-icon size="48" color="grey">mdi-bus-off</v-icon>
               <p class="text-h6 font-weight-bold mt-2">No Buses Available</p>
               <p class="text-body-2 text-grey">
@@ -591,6 +604,10 @@ export default {
   data() {
     return {
       rating: 3.5,
+      isPriceLowToHigh: false,
+      isPriceHighToLow: false,
+      isAC: false, // Toggle for AC buses
+      isNonAC: false, // Toggle for Non-AC buses
       dialog: false,
       isExpanded: false,
       districtList: [],
@@ -624,16 +641,6 @@ export default {
         "R12",
         "R13",
         "R14",
-      ],
-      sortItems: [
-        {
-          text: "price Low to high",
-          value: "lowToHigh",
-        },
-        {
-          text: "Price High to Low",
-          value: "highToLow",
-        },
       ],
       userSelectedSort: [],
       selectedDate: null,
@@ -673,14 +680,17 @@ export default {
     isSelected(seat) {
       return this.selectedSeats.includes(seat);
     },
-    toggleSeatSelection(seat) {
-      const index = this.selectedSeats.indexOf(seat);
-      if (index === -1) {
-        this.selectedSeats.push(seat); // Add seat if not selected
-      } else {
-        this.selectedSeats.splice(index, 1); // Remove seat if already selected
-      }
-    },
+    toggleSeatSelection(bus, seat) {
+  if (seat.booked) return;
+
+  seat.selected = !seat.selected;
+
+  if (seat.selected) {
+    this.selectedSeats.push(seat.label);
+  } else {
+    this.selectedSeats = this.selectedSeats.filter(s => s !== seat.label);
+  }
+},
     toggleExpansion(index) {
       this.expandedIndex = this.expandedIndex === index ? null : index;
     },
@@ -692,21 +702,21 @@ export default {
     },
 
     calculateTravelHours(departureTime, arrivalTime) {
-  const [depHours, depMinutes] = departureTime.split(":").map(Number);
-  const [arrHours, arrMinutes] = arrivalTime.split(":").map(Number);
+      const [depHours, depMinutes] = departureTime.split(":").map(Number);
+      const [arrHours, arrMinutes] = arrivalTime.split(":").map(Number);
 
-  const departureDate = new Date();
-  departureDate.setHours(depHours, depMinutes, 0, 0); // Set departure time
+      const departureDate = new Date();
+      departureDate.setHours(depHours, depMinutes, 0, 0); // Set departure time
 
-  const arrivalDate = new Date();
-  arrivalDate.setHours(arrHours, arrMinutes, 0, 0); // Set arrival time
+      const arrivalDate = new Date();
+      arrivalDate.setHours(arrHours, arrMinutes, 0, 0); // Set arrival time
 
-  const diffInMs = Math.abs(arrivalDate - departureDate); // Always positive
-  const diffInHours = diffInMs / (1000 * 60 * 60); // Convert from milliseconds to hours
+      const diffInMs = Math.abs(arrivalDate - departureDate); // Always positive
+      const diffInHours = diffInMs / (1000 * 60 * 60); // Convert from milliseconds to hours
 
-  this.totalTravelHrs = diffInHours.toFixed(1);
-  return diffInHours.toFixed(1);
-},
+      this.totalTravelHrs = diffInHours.toFixed(1);
+      return diffInHours.toFixed(1);
+    },
 
     filterSelected(type) {
       if (type === "ac") {
@@ -744,6 +754,10 @@ export default {
       return this.totalPrice;
     },
     bookingPage(busDetails) {
+      if (!this.selectedSeats.length > 0) {
+        alert("Select atleast one seat to proceed");
+        return;
+      }
       const bookingDetails = {
         busdetails: busDetails,
         price: this.totalPrice,
@@ -776,8 +790,6 @@ export default {
         );
 
         if (response.status === 200) {
-          console.log(response);
-
           this.availabelBus = response.data;
         }
 
@@ -806,10 +818,25 @@ export default {
         (district) => district !== this.serviceStartPlace
       );
     },
-    totalTravelHours() {
-    if (!this.departureTime || !this.arrivalTime) return "N/A"; // Handle empty values
-    return this.calculateTravelHours(this.departureTime, this.arrivalTime);
-  }
+    sortedBuses() {
+      let filteredBuses = [...this.availabelBus];
+
+      filteredBuses = filteredBuses.filter((bus) => {
+        if (this.isAC && bus.busType === "AC") return true;
+        if (this.isNonAC && bus.busType === "Non-AC") return true;
+        if (!this.isAC && !this.isNonAC) return true;
+        return false;
+      });
+
+      if (this.isPriceLowToHigh) {
+        filteredBuses.sort((a, b) => a.sleeperPrice - b.sleeperPrice); // Low to High
+      }
+      if (this.isPriceHighToLow) {
+        filteredBuses.sort((a, b) => b.sleeperPrice - a.sleeperPrice); // High to Low
+      }
+
+      return filteredBuses;
+    },
   },
 
   async mounted() {
@@ -891,4 +918,11 @@ export default {
 ::-webkit-scrollbar-thumb:hover {
   background: #feb62e;
 }
+
+.seat.booked {
+  background-color: grey;
+  color: white;
+  cursor: not-allowed;
+}
+
 </style>

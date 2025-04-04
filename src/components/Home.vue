@@ -285,6 +285,8 @@ export default {
         .post("http://localhost:3000/login", { email: this.email })
         .then((response) => {
           console.log("Login successful:", response.data);
+          const token =  response.data.token
+          Cookies.set("authToken",token , { expires: 7 });
           this.authToken();
         })
         .catch((error) => {
@@ -297,7 +299,10 @@ export default {
     authToken() {
       const auth_token = Cookies.get("authToken");
 
+
       if (auth_token) {
+        console.log("found");
+        
         (this.loginStatus = true), (this.isLogin = false);
       }
     },

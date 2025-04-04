@@ -11,7 +11,7 @@
         >
       </v-toolbar>
 
-      <v-card  rounded="xl">
+      <v-card rounded="xl">
         <v-row class="d-flex align-center">
           <v-col class="py-0">
             <v-card-text class="py-0">Get addtional discounts</v-card-text>
@@ -23,7 +23,7 @@
             <v-img src="bus_icon.png" width="75px" />
           </v-col>
           <v-col class="text-end py-0">
-            <v-btn class="rounded-xl text-orange" height="100" block >
+            <v-btn class="rounded-xl text-orange" height="100" block>
               login now
             </v-btn>
           </v-col>
@@ -85,7 +85,11 @@
                   variant="outlined"
                 >
                 </v-text-field>
-                <v-btn class="text-white" block color="orange" @click="payNow">Pay Now</v-btn>
+                <v-btn class="text-white"
+                :loading="isLoading"
+                block color="orange" @click="payNow"
+                  >Pay Now</v-btn
+                >
                 <v-col>
                   <v-timeline dense>
                     <v-timeline-item
@@ -112,7 +116,7 @@
 
             <v-row class="d-flex flex-column pb-10">
               <v-col class="py-0">
-                <v-card-title class="font-weight-bold py-1">500</v-card-title>
+                <v-card-title class="font-weight-bold py-1">{{ price }}</v-card-title>
               </v-col>
               <v-col class="py-0">
                 <v-card-subtitle>
@@ -127,7 +131,7 @@
             <v-card-title class="text-center"
               >Credit/Debit Card Payment</v-card-title
             >
-            <v-card-text class="text-center">Total-INR 500/-</v-card-text>
+            <v-card-text class="text-center">Total-INR  {{ price }} /-</v-card-text>
             <v-card class="border mx-5">
               <v-row>
                 <v-col class="d-flex flex-column">
@@ -215,7 +219,7 @@
               <v-col class="d-flex justify-space-between py-0">
                 <v-card-text>Bus Fare</v-card-text>
                 <v-card-text class="text-center">{{
-                  bookingdata.price
+                  bookingdata.busdetails.sleeperPrice
                 }}</v-card-text>
               </v-col>
               <v-col class="d-flex justify-space-between py-0">
@@ -228,7 +232,7 @@
                   >TOTAL</v-card-text
                 >
                 <v-card-text class="text-center">{{
-                  bookingdata.price + 29
+                  bookingdata.busdetails.sleeperPrice + 29
                 }}</v-card-text>
               </v-col>
             </v-row>
@@ -237,12 +241,14 @@
       </v-card>
     </v-container>
     <v-dialog v-model="isSuccesfull" fullscreen>
-      <v-toolbar color="#10223B" height="550px">
+      <v-toolbar color="orange" height="550px">
         <v-container class="text-center">
-          <v-btn icon class="bg-white" color="green" size="x-large">
+          <v-btn icon class="bg-white" color="orange" size="x-large">
             <v-icon size="2em">mdi-check</v-icon>
           </v-btn>
-          <v-card-title class="text-h5 mt-4">Payment Succesfull</v-card-title>
+          <v-card-title class="text-h5 mt-4 text-white font-weight-bold"
+            >Payment Succesfull</v-card-title
+          >
         </v-container>
       </v-toolbar>
       <v-card>
@@ -285,11 +291,7 @@
             <v-col>
               <v-row class="d-flex">
                 <v-col class="text-end">Payment Status</v-col>
-                <v-col class="text-start ml-4">Sucess</v-col>
-              </v-row>
-              <v-row class="d-flex">
-                <v-col class="text-end">Payment Status</v-col>
-                <v-col class="text-start ml-4">
+                <v-col class="text-start ml-4 font-weight-bold">
                   <v-icon color="green">mdi-check</v-icon> Sucess</v-col
                 >
               </v-row>
@@ -297,7 +299,7 @@
           </v-row>
           <v-row class="d-flex mt-16">
             <v-col class="text-end">
-              <v-btn @click="downloadTicket" color="green"
+              <v-btn @click="downloadTicket" color="orange" variant="outlined"
                 >Download Ticktet</v-btn
               >
             </v-col>
@@ -312,122 +314,144 @@
     </v-dialog>
     <!-- Ticket -->
     <v-container v-if="isTicket">
-      <v-container id="ticket-content">
-        <v-row>
-          <v-col>
-            <v-card-title class="font-weight-bold text-blue"
+      <v-container id="ticket-content" class="pa-4 rounded-lg elevation-3">
+        <!-- Header -->
+        <v-row class="align-center py-5" style="background-color: orange">
+          <v-col cols="6" class="d-flex align-center">
+            <v-icon size="40" color="white">mdi-bus</v-icon>
+            <v-card-title class="font-weight-bold text-white ml-2 text-h4"
               >Payanam</v-card-title
             >
           </v-col>
-          <v-col class="text-end">
-            <v-card-subtitle>Your Trip Start From Here--</v-card-subtitle>
-            <v-card-text class="py-0">E-ticket Reservation</v-card-text>
-          </v-col>
-        </v-row>
-        <v-row class="d-flex flex-column">
-          <v-col>
-            <v-card-text class="text-subtitle-1">
-              Travel Information</v-card-text
+          <v-col cols="6" class="text-end">
+            <v-card-subtitle class="font-italic"
+              >Your Trip Starts Here</v-card-subtitle
+            >
+            <v-card-text class="py-0 font-weight-bold"
+              >E-Ticket Reservation</v-card-text
             >
           </v-col>
-          <v-col>
-            <v-row>
-              <v-col>
-                <v-row>
-                  <v-col>
-                    <v-card-text class="py-1"
-                      >Transport : {{ bookingdata.busdetails.companyName }}
-                    </v-card-text>
-                    <v-card-text class="py-1">
-                      Service Start place : {{ serviceStartPlace }}
-                    </v-card-text>
-                  </v-col>
-                </v-row>
-              </v-col>
-              <v-col>
-                <v-row>
-                  <v-col>
-                    <v-card-text class="py-1"
-                      >PNR Number : 192193920
-                    </v-card-text>
+        </v-row>
 
-                    <v-card-text class="py-1">
-                      Service End place : {{ serviceEndPlace }}
-                    </v-card-text>
-                    <v-card-text class="py-1">
-                      Class of service :
-                      {{ bookingdata.busdetails.busType }}</v-card-text
-                    >
-                  </v-col>
-                </v-row>
-              </v-col>
-            </v-row>
-          </v-col>
-        </v-row>
-        <v-row class="d-flex flex-column">
-          <v-col>
-            <v-card-text class="text-subtitle-1">
-              Traveler Information</v-card-text
-            >
-          </v-col>
-          <v-col>
-            <v-row>
-              <v-col>
-                <v-table>
-                  <thead>
-                    <tr>
-                      <th>Name</th>
-                      <th>Age</th>
-                      <th>Gender</th>
-                      <th>Seat No</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>{{ userdata.name }}</td>
-                      <td>{{ userdata.age }}</td>
-                      <td>{{ userdata.gender }}</td>
-                      <td>{{ bookingdata.selectedSeats.join(", ") }}</td>
-                    </tr>
-                  </tbody>
-                </v-table>
-              </v-col>
-            </v-row>
-          </v-col>
-        </v-row>
+        <v-divider class="my-3"></v-divider>
+
+        <!-- Travel Information -->
         <v-row>
           <v-col>
-            <v-card-text>IMPORTANT POINTS :</v-card-text>
-            <v-card-text
-              >* The seat(s) booked under this ticket is/are not
-              transferable.</v-card-text
-            >
-            <v-card-text
-              >* The seat(s) booked under this ticket is/are not
-              transferable.</v-card-text
-            >
-            <v-card-text
-              >* The seat(s) booked under this ticket is/are not
-              transferable.</v-card-text
-            >
-            <v-card-text
-              >* The seat(s) booked under this ticket is/are not
-              transferable.</v-card-text
-            >
-            <v-card-text
-              >* The seat(s) booked under this ticket is/are not
-              transferable.</v-card-text
+            <v-card-title class="text-subtitle-1 font-weight-bold"
+              >Travel Information</v-card-title
             >
           </v-col>
         </v-row>
+
+        <v-row class="pa-2">
+          <v-col cols="6">
+            <v-card-text
+              ><strong>Transport:</strong>
+              {{ bookingdata.busdetails.companyName }}</v-card-text
+            >
+            <v-card-text
+              ><strong>Service Start Place:</strong>
+              {{ serviceStartPlace }}</v-card-text
+            >
+          </v-col>
+          <v-col cols="6">
+            <v-card-text><strong>PNR Number:</strong> 192193920</v-card-text>
+            <v-card-text
+              ><strong>Service End Place:</strong>
+              {{ serviceEndPlace }}</v-card-text
+            >
+            <v-card-text
+              ><strong>Class of Service:</strong>
+              {{ bookingdata.busdetails.busType }}</v-card-text
+            >
+          </v-col>
+        </v-row>
+
+        <v-divider class="my-3"></v-divider>
+
+        <!-- Traveler Information -->
+        <v-row>
+          <v-col>
+            <v-card-title class="text-subtitle-1 font-weight-bold"
+              >Traveler Information</v-card-title
+            >
+          </v-col>
+        </v-row>
+
+        <v-row>
+          <v-col>
+            <v-table>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Age</th>
+                  <th>Gender</th>
+                  <th>Seat No</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  v-for="(passenger, index) in userdata.passengers"
+                  :key="index"
+                >
+                  <td class="text-black">{{ passenger.name }}</td>
+                  <td>{{ passenger.age }}</td>
+                  <td>{{ passenger.gender }}</td>
+                  <td>{{ bookingdata.selectedSeats[index] }}</td>
+                </tr>
+              </tbody>
+            </v-table>
+          </v-col>
+        </v-row>
+
+        <v-divider class="my-3"></v-divider>
+
+        <!-- Important Points -->
+        <v-row>
+          <v-col>
+            <v-card-title class="text-subtitle-1 font-weight-bold"
+              >Important Points</v-card-title
+            >
+            <v-card-text>* This ticket is non-transferable.</v-card-text>
+            <v-card-text>* Carry a valid ID proof.</v-card-text>
+            <v-card-text>* Arrive 30 mins before departure.</v-card-text>
+            <v-card-text
+              >* Contact customer support for any issues.</v-card-text
+            >
+          </v-col>
+        </v-row>
+
+        <v-divider class="my-3"></v-divider>
+
+        <!-- Cancellation Policy -->
+        <v-row>
+          <v-col>
+            <v-card-title class="text-subtitle-1 font-weight-bold"
+              >Cancellation Policy</v-card-title
+            >
+            <v-card-text
+              >* 100% refund if canceled 48 hours before departure.</v-card-text
+            >
+            <v-card-text
+              >* 50% refund if canceled 24 hours before departure.</v-card-text
+            >
+            <v-card-text
+              >* No refund if canceled within 12 hours of
+              departure.</v-card-text
+            >
+          </v-col>
+        </v-row>
+
+        <v-divider class="my-3"></v-divider>
+
+        <!-- Safe Journey Message -->
         <v-row>
           <v-col class="text-center text-blue">
-            <v-card-text
-              >SAFE JOURNEY, HAVE A NICE DAY.
-              <v-icon color="green" size="2em">
-                mdi-handshake-outline</v-icon
-              ></v-card-text
-            >
+            <v-card-text class="font-weight-bold">
+              SAFE JOURNEY, HAVE A NICE DAY.
+              <v-icon color="green" size="2em">mdi-handshake-outline</v-icon>
+            </v-card-text>
           </v-col>
         </v-row>
       </v-container>
@@ -436,13 +460,16 @@
 </template>
 <script>
 import { mapState } from "vuex";
+import Cookies from "js-cookie";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
+import axios from "axios";
 export default {
   name: "paymentPage",
   data() {
     return {
       isTicket: false,
+      isLoading:false,
       isUpiOption: true,
       isCreditOption: false,
       isSuccesfull: false,
@@ -533,10 +560,34 @@ export default {
         console.error("Error generating ticket:", error);
       }
     },
-    payNow() {
-      this.isSuccesfull = true;
+    async payNow() {
+      const token = Cookies.get("authToken");
+      if (!token) {
+        alert("Login to Book Ticket");
+        return;
+      }
+      this.isLoading = true
+
+      try {
+        const response = await axios.post("http://localhost:3000/book-seats", {
+          busId: this.bookingdata.busdetails._id,
+          seats: this.bookingdata.selectedSeats,
+        });
+
+        if(response.status === 200){
+          this.isLoading = false
+          this.isSuccesfull = true;
+          
+
+        }
+      } catch (error) {
+        this.isLoading = false
+       alert("Error in Payment")
+        console.error("Booking error:", error);
+        this.message = "Failed to book seats.";
+      }
+    }
     },
-  },
   computed: {
     ...mapState(["bookingdata", "userdata"]),
   },
@@ -544,14 +595,14 @@ export default {
     const { from, to } = this.$route.query;
     this.serviceStartPlace = from;
     this.serviceEndPlace = to;
-    this.price = this.bookingdata.price + 29;
+    this.price = this.bookingdata.busdetails.sleeperPrice + 29;
   },
 };
 </script>
 
 <style scoped>
 .gradient {
-  background: linear-gradient(to bottom,orange 20%, #eae8e8 20%);
+  background: linear-gradient(to bottom, orange 20%, #eae8e8 20%);
   width: 100%;
 }
 .img {

@@ -67,22 +67,25 @@
             >Traveller Details</v-card-title
           >
 
-          <v-row class="px-2 py-4">
+          <v-row class="px-2 py-4 align-center">
             <v-col cols="2">
-              <v-card-text
-                >Seat No :
-                {{ bookingdata.selectedSeats.join(", ") }}</v-card-text
-              >
+              <v-card-text>
+                <strong>Seat No :</strong>
+                {{ bookingdata.selectedSeats.join(", ") }}
+              </v-card-text>
             </v-col>
+          </v-row>
 
-            <template
-              v-for="(seat, index) in bookingdata.selectedSeats"
-              :key="seat"
-            >
+          <template
+            v-for="(seat, index) in bookingdata.selectedSeats"
+            :key="seat"
+          >
+            <v-row class="px-2 align-center">
+              <!-- Passenger Name -->
               <v-col cols="3">
-                <v-card-text class="py-1 px-0"
-                  >Name (Passenger {{ index + 1 }})</v-card-text
-                >
+                <v-card-text class="py-1 px-0">
+                  Name (Passenger {{ index + 1 }})
+                </v-card-text>
                 <v-text-field
                   v-model="passengers[index].name"
                   variant="outlined"
@@ -92,6 +95,7 @@
                 ></v-text-field>
               </v-col>
 
+              <!-- Age -->
               <v-col cols="2">
                 <v-card-text class="py-1 px-0">Age *</v-card-text>
                 <v-text-field
@@ -103,26 +107,34 @@
                 ></v-text-field>
               </v-col>
 
+              <!-- Gender Selection -->
               <v-col cols="4">
-                <v-card-text class="py-0">Gender</v-card-text>
-                <v-col class="d-flex align-center py-0">
-                  <v-checkbox
-                    v-model="passengers[index].gender"
-                    value="Male"
-                    label="Male"
-                    :rules="[rules.requiredGender]"
-                  ></v-checkbox>
-                  <v-checkbox
-                    v-model="passengers[index].gender"
-                    value="Female"
-                    label="Female"
-                    :rules="[rules.requiredGender]"
-                  ></v-checkbox>
-                </v-col>
+                <v-card-text class="py-1 px-0">Gender</v-card-text>
+                <v-row class="align-center">
+                  <v-col cols="6">
+                    <v-checkbox
+                      v-model="passengers[index].gender"
+                      value="Male"
+                      label="Male"
+                      :rules="[rules.requiredGender]"
+                      hide-details
+                    ></v-checkbox>
+                  </v-col>
+                  <v-col cols="6">
+                    <v-checkbox
+                      v-model="passengers[index].gender"
+                      value="Female"
+                      label="Female"
+                      :rules="[rules.requiredGender]"
+                      hide-details
+                    ></v-checkbox>
+                  </v-col>
+                </v-row>
               </v-col>
-            </template>
-          </v-row>
+            </v-row>
+          </template>
         </v-card>
+
         <!-- Contact Details -->
         <v-card class="border rounded-lg" flat>
           <v-row class="d-flex align-center">
@@ -163,13 +175,15 @@
         </v-card>
       </v-card>
       <!-- Right Side -->
-      <v-card width="30%" class="px-4 elevation-4 py-4" height="54vh">
+      <v-card width="30%" class="px-4 elevation-4 py-4 mt-4" height="54vh">
         <v-card-title>Price Details</v-card-title>
         <v-row class="d-flex align-center">
           <v-col class="py-0">
             <v-card-text class="py-0 pt-4">Base Fare</v-card-text>
           </v-col>
-          <v-col class="py-0 text-end">{{ bookingdata.price }}</v-col>
+          <v-col class="py-0 text-end">{{
+            bookingdata.busdetails.sleeperPrice
+          }}</v-col>
         </v-row>
         <v-row class="d-flex align-center pb-6">
           <v-col class="py-0">
@@ -182,7 +196,9 @@
           <v-col>
             <v-card-text>Amount</v-card-text>
           </v-col>
-          <v-col class="text-end">{{ bookingdata.price + 29 }}</v-col>
+          <v-col class="text-end">{{
+            bookingdata.busdetails.sleeperPrice + 29
+          }}</v-col>
         </v-row>
         <v-card-subtitle style="font-size: 12px" class="mt-4"
           >By clicking on proceed, I agree that I have read and <br />
@@ -239,22 +255,22 @@ export default {
               i + 1
             } (Name, Age, Gender).`
           );
-          return; 
+          return;
         }
       }
 
-      if(! this.email){
-        alert("Enter Email ID")
-        return; 
+      if (!this.email) {
+        alert("Enter Email ID");
+        return;
       }
 
-      if(!this.mobileNumber){
-        alert("Enter Mobile Number")
-        return; 
+      if (!this.mobileNumber) {
+        alert("Enter Mobile Number");
+        return;
       }
 
       const userData = {
-        passengers: this.passengers, 
+        passengers: this.passengers,
         email: this.email,
         mobilenumber: this.mobileNumber,
       };
@@ -291,6 +307,8 @@ export default {
     },
   },
   mounted() {
+    console.log("bookingdata",this.bookingdata);
+    
     const { from, to, date } = this.$route.query;
     this.serviceStartPlace = from;
     this.serviceEndPlace = to;
